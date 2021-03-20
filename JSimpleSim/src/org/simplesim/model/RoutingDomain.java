@@ -5,12 +5,12 @@
  */
 package org.simplesim.model;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 import org.simplesim.core.messaging.AbstractPort;
 import org.simplesim.core.messaging.RoutedMessage;
 import org.simplesim.core.messaging.SinglePort;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Implements a domain suited for automatic message routing by using the message's address tag.

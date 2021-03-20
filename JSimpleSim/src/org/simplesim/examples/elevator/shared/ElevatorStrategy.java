@@ -5,19 +5,14 @@
  */
 package org.simplesim.examples.elevator.shared;
 
-import static org.simplesim.examples.elevator.shared.Limits.DOWN;
-import static org.simplesim.examples.elevator.shared.Limits.IDLE;
-import static org.simplesim.examples.elevator.shared.Limits.LOBBY;
-import static org.simplesim.examples.elevator.shared.Limits.MAX_FLOOR;
-import static org.simplesim.examples.elevator.shared.Limits.UP;
-import static org.simplesim.examples.elevator.shared.Limits.UPDOWN;
+import org.simplesim.core.scheduling.Time;
+import org.simplesim.examples.elevator.shared.Elevator.Event;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.simplesim.core.scheduling.Time;
-import org.simplesim.examples.elevator.shared.Elevator.Event;
+import static org.simplesim.examples.elevator.shared.Limits.*;
 
 /**
  * Class encapsulating the elevator steering logic. 
@@ -48,7 +43,7 @@ public final class ElevatorStrategy {
 	public void processMoveEvent(Time time) {
 		elevator.processMessages(); // process any new requests
 
-		final int exitingPassengers=exitCabin(time); // let passengers for this floor leave the cabin
+		final int exitingPassengers = exitCabin(time); // let passengers for this floor leave the cabin
 		getState().setArrivals(getState().getCurrentFloor(),exitingPassengers);
 
 		int enteringPassengers=enterCabin(time); // let new passengers going in current direction enter the cabin
