@@ -22,7 +22,7 @@ public class TrainStationMain {
 
         //First order service stations
         ServiceStation[] serviceStations_A = new ServiceStation[numberOfFirstOrderServiceStations];
-        serviceStations_A[0] = new ServiceStation(new TriangularDistribution(15,25,35), 1);
+        serviceStations_A[0] = new ServiceStation(new TriangularDistribution(25,30,35), 1);
         serviceStations_A[1] = new ServiceStation(new TriangularDistribution(15,25,35), 1);
         serviceStations_A[2] = new ServiceStation(new TriangularDistribution(15,25,35), 1);
         serviceStations_A[3] = new ServiceStation(new TriangularDistribution(15,25,35), 1);
@@ -36,7 +36,7 @@ public class TrainStationMain {
         trainsGenerators[0] = new TrainsGenerator(new ExponentialDistribution(30), 1, 2000);
         trainsGenerators[1] = new TrainsGenerator(new ExponentialDistribution(30), 2, 1500);
         trainsGenerators[2] = new TrainsGenerator(new ExponentialDistribution(30), 3, 1000);
-        trainsGenerators[3] = new TrainsGenerator(new ExponentialDistribution(30), 4, 5000);
+        trainsGenerators[3] = new TrainsGenerator(new ExponentialDistribution(30), 4, 500);
         trainsGenerators[4] = new TrainsGenerator(new ExponentialDistribution(30), 5, 3000);
 
         try{
