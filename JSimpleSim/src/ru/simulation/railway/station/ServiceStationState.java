@@ -2,7 +2,6 @@ package ru.simulation.railway.station;
 
 import org.simplesim.model.State;
 import ru.simulation.railway.train.TrainRequest;
-
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -10,9 +9,9 @@ public class ServiceStationState implements State {
 
     private final int capacity;
     private int currentNumber = 0; //Number of trains at the moment
+    private int totalServedNumber = 0;
     private final Queue<TrainRequest> requestsInProgress = new LinkedList<>();
     private final LinkedList<TrainRequest> requestQueue = new LinkedList<>();
-    private final ServiceStationListener listener = new ServiceStationListener();
     private ServiceStation station;
     private final ServiceStationStatistics statistics = new ServiceStationStatistics(this);
 
@@ -26,22 +25,17 @@ public class ServiceStationState implements State {
         }
     }
 
-    public ServiceStation getStation(){
-        return station;
-    }
-
     public int getCurrentNumber(){
         return currentNumber;
     }
 
     public void incrementCurrentNumber(){
         currentNumber++;
-        listener.notifyListener(this);
     }
 
     public void decrementCurrentNumber(){
         currentNumber--;
-        listener.notifyListener(this);
+        totalServedNumber++;
     }
 
     public Queue<TrainRequest> getRequestsInProgress(){
@@ -50,6 +44,18 @@ public class ServiceStationState implements State {
 
     public LinkedList<TrainRequest> getRequestQueue(){
         return requestQueue;
+    }
+
+    public int getQueueLength(){
+        return requestQueue.size();
+    }
+
+    public int getNumberInProcess(){
+        return requestsInProgress.size();
+    }
+
+    public int getTotalServedNumber(){
+        return totalServedNumber;
     }
 
     public ServiceStationStatistics getStatistics(){

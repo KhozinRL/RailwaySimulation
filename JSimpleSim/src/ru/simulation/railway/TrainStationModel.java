@@ -1,69 +1,59 @@
 package ru.simulation.railway;
 
-import org.apache.commons.math3.distribution.TriangularDistribution;
-import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.simplesim.model.RoutingDomain;
 import ru.simulation.railway.station.ServiceStation;
 import ru.simulation.railway.train.Train;
 import ru.simulation.railway.train.TrainsGenerator;
-
 import java.util.LinkedList;
 
 public class TrainStationModel extends RoutingDomain {
 
     private final ServiceStation[] serviceStations_A;
-    //private final ServiceStation serviceStation1 = new ServiceStation(5);
-    private final ServiceStation serviceStation2;
-    TrainsGenerator tg;
+    private final ServiceStation serviceStation_B;
+    TrainsGenerator[] tgs;
 
-    public TrainStationModel(int numberOfTrains, int numberOfStations, int capacityOfSecondServiceStation){
+    public TrainStationModel(ServiceStation[] serviceStations_A, ServiceStation serviceStation_B, TrainsGenerator[] generators) throws Exception{
         super();
-        tg = new TrainsGenerator(new TriangularDistribution(0,0.5,1), new UniformIntegerDistribution(1,numberOfStations), numberOfTrains);
-        serviceStations_A = new ServiceStation[numberOfStations];
-        initializeStationsA(numberOfStations, 1);
-        serviceStation2 = new ServiceStation(capacityOfSecondServiceStation);
+        if (serviceStations_A.length != generators.length)
+            throw new Exception("Number of Service Stations not equal to number of generators");
+
+        this.serviceStations_A = serviceStations_A;
+        this.serviceStation_B = serviceStation_B;
+        this.tgs = generators;
         setAsRootDomain();
+        initializeModel();
     }
 
-    public ServiceStation getStation(int id) {
+    public ServiceStation getServiceStation_A(int id) {
         return serviceStations_A[id-1];
     }
-    public ServiceStation getSecondStation(){
-        return serviceStation2;
-    }
 
-    public int getServiceStationsALen(){
-        return serviceStations_A.length;
+    public ServiceStation getServiceStation_B(){
+        return serviceStation_B;
     }
 
     public void initializeModel(){
+
+        for (TrainsGenerator t: tgs) {
+            LinkedList<Train> trains = t.generate();
+            for (Train train : trains){
+                this.addEntity(train);
+            }
+        }
+
         for (ServiceStation station: serviceStations_A) {
             this.addEntity(station);
+            this.addEntity(station.getState().getStatistics());
         }
-        //this.addEntity(serviceStation1);
-        this.addEntity(serviceStation2);
-
-        LinkedList<Train> trains = tg.generate();
-        for (Train train : trains){
-            this.addEntity(train);
-        }
+        this.addEntity(serviceStation_B);
+        this.addEntity(serviceStation_B.getState().getStatistics());
 
         Train.model = this;
     }
 
-    public void initializeStationsA(int number, int capacity){
-        for(int i = 0; i < number; i++){
-            serviceStations_A[i] = new ServiceStation(capacity);
-        }
-    }
 
     @Override
     public String getName() {
         return "Train station";
-    }
-
-    public static void main(String[] args) {
-        TrainStationModel m = new TrainStationModel(1,2,5);
-        System.out.println(m.serviceStations_A[0].getState().getCapacity());
     }
 }

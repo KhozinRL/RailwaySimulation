@@ -1,35 +1,52 @@
 package ru.simulation.railway;
 
+import org.apache.commons.math3.distribution.ExponentialDistribution;
+import org.apache.commons.math3.distribution.TriangularDistribution;
 import org.simplesim.core.messaging.ForwardingStrategy;
 import org.simplesim.core.messaging.RoutedMessageForwarding;
+import org.simplesim.core.scheduling.Time;
 import org.simplesim.simulator.DynamicDecorator;
 import org.simplesim.simulator.SequentialDESimulator;
 import org.simplesim.simulator.Simulator;
-import ru.simulation.railway.train.TrainsStatistics;
+import ru.simulation.railway.station.ServiceStation;
+import ru.simulation.railway.train.TrainsGenerator;
 
 public class TrainStationMain {
 
     public static void main(String[] args) {
 
-        TrainStationModel model = new TrainStationModel(1,1,5);
-        model.initializeModel();
+        TimeConstants.setEndSimulation(new Time(0,0,30,0,0,0));
 
-        /*ArrayList<Train> trains = tg.generate();
-        for (Train t: trains) {
-            model.addEntity(t);
-        }*/
+        int numberOfFirstOrderServiceStations = 5;
+        int capacityOfSecondOrderServiceStation = 5;
 
-        final ForwardingStrategy fs=new RoutedMessageForwarding(model);
-        //final Simulator simulator=new DynamicDecorator(new ConcurrentDESimulator(model,fs));
-        final Simulator simulator=new DynamicDecorator(new SequentialDESimulator(model,fs));
+        //First order service stations
+        ServiceStation[] serviceStations_A = new ServiceStation[numberOfFirstOrderServiceStations];
+        serviceStations_A[0] = new ServiceStation(new TriangularDistribution(15,25,35), 1);
+        serviceStations_A[1] = new ServiceStation(new TriangularDistribution(15,25,35), 1);
+        serviceStations_A[2] = new ServiceStation(new TriangularDistribution(15,25,35), 1);
+        serviceStations_A[3] = new ServiceStation(new TriangularDistribution(15,25,35), 1);
+        serviceStations_A[4] = new ServiceStation(new TriangularDistribution(15,25,35), 1);
 
-        // add observer
-        simulator.registerEventsProcessedListener(CurrentTimeListener.getCurrentTimeListener());
+        //Second order service station
+        ServiceStation serviceStation_B = new ServiceStation(new TriangularDistribution(15,25,35), capacityOfSecondOrderServiceStation);
 
-        simulator.runSimulation(TimeConstants.END_SIMULATION);
+        //Generators
+        TrainsGenerator[] trainsGenerators = new TrainsGenerator[numberOfFirstOrderServiceStations];
+        trainsGenerators[0] = new TrainsGenerator(new ExponentialDistribution(30), 1, 2000);
+        trainsGenerators[1] = new TrainsGenerator(new ExponentialDistribution(30), 2, 1500);
+        trainsGenerators[2] = new TrainsGenerator(new ExponentialDistribution(30), 3, 1000);
+        trainsGenerators[3] = new TrainsGenerator(new ExponentialDistribution(30), 4, 5000);
+        trainsGenerators[4] = new TrainsGenerator(new ExponentialDistribution(30), 5, 3000);
 
-        System.out.println("\nFirst service station waiting avg time: " + TrainsStatistics.firstWaitingAVGTime);
-        System.out.println("Trains processed: " + TrainsStatistics.getNumOfFirstServiceTrains());
-        System.out.println("Simulator total time: " + simulator.getSimulationTime());
+        try{
+            TrainStationModel model = new TrainStationModel(serviceStations_A, serviceStation_B, trainsGenerators);
+            final ForwardingStrategy fs=new RoutedMessageForwarding(model);
+            final Simulator simulator=new DynamicDecorator(new SequentialDESimulator(model,fs));
+            simulator.registerEventsProcessedListener(CurrentTimeListener.getCurrentTimeListener());
+            simulator.runSimulation(TimeConstants.END_SIMULATION);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

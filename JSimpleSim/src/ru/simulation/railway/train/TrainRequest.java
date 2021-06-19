@@ -5,7 +5,9 @@ import org.simplesim.core.scheduling.Time;
 public class TrainRequest implements Comparable<TrainRequest>{
 
     Train train;
-    Time requestTime;
+    public Time requestTime;
+    public Time startTime;
+    public Time endTime;
 
     public TrainRequest(Train v, Time time){
         train = v;
@@ -15,24 +17,15 @@ public class TrainRequest implements Comparable<TrainRequest>{
     public Train getTrain(){
         return train;
     }
-    public void setServiceStartTime(Time serviceStartTime) {
-        /*if (train.getState().getActivity() == TrainState.Activity.waitingForFirstService){
-            train.getState().setStartOfFirstService(serviceStartTime);
-        } else if (train.getState().getActivity() == TrainState.Activity.waitingForSecondService){
-            train.getState().setStartOfSecondService(serviceStartTime);
-        }*/
-        train.getState().setServiceStartTime(serviceStartTime);
 
+    public void setServiceStartTime(Time serviceStartTime) {
+        train.getState().setServiceStartTime(serviceStartTime);
+        startTime = serviceStartTime;
     }
 
     public void setServiceEndTime(Time serviceEndTime) {
-        /*if (train.getState().getActivity() == TrainState.Activity.waitingForFirstService){
-            train.getState().setEndOfFirstService(serviceEndTime);
-        } else if (train.getState().getActivity() == TrainState.Activity.waitingForSecondService){
-            train.getState().setEndOfSecondService(serviceEndTime);
-        }*/
-
         train.getState().setServiceEndTime(serviceEndTime);
+        endTime = serviceEndTime;
     }
 
     @Override
@@ -45,12 +38,12 @@ public class TrainRequest implements Comparable<TrainRequest>{
         StringBuilder sb = new StringBuilder();
         TrainState trainState = train.getState();
         sb.append(String.format("Train: %d", train.trainId));
-        sb.append("\nTime of injection: " + train.getState().getTimeOfInjection());
-        sb.append("\nRequest time: " + requestTime);
-        sb.append("\nStart first service time: " + trainState.getStartOfFirstService());
-        sb.append("\nEnd first service time: " + trainState.getEndOfFirstService());
-        sb.append("\nStart second service time: " + trainState.getStartOfSecondService());
-        sb.append("\nEnd second service time: " + trainState.getEndOfSecondService());
+        sb.append("\nTime of injection: ").append(train.getState().getTimeOfInjection());
+        sb.append("\nRequest time: ").append(requestTime);
+        sb.append("\nStart first service time: ").append(trainState.getStartOfFirstService());
+        sb.append("\nEnd first service time: ").append(trainState.getEndOfFirstService());
+        sb.append("\nStart second service time: ").append(trainState.getStartOfSecondService());
+        sb.append("\nEnd second service time: ").append(trainState.getEndOfSecondService());
 
         return sb.toString();
     }

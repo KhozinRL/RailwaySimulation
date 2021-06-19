@@ -1,29 +1,36 @@
 package ru.simulation.railway.train;
 
-import org.apache.commons.math3.distribution.AbstractIntegerDistribution;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.math3.distribution.AbstractRealDistribution;
 import org.simplesim.core.scheduling.Time;
 import ru.simulation.railway.TimeConstants;
-import ru.simulation.railway.train.Train;
-
+import java.io.File;
+import java.io.FileWriter;
 import java.util.LinkedList;
 
 public class TrainsGenerator {
 
-    public enum DistributionType {
-        TRIANGULAR, NORMAL;
-    }
-    private final AbstractRealDistribution timeDistribution; //Distribution type
-    private final AbstractIntegerDistribution threadDistribution;
-    private int number; //Number of trains to generate
+    private final AbstractRealDistribution timeDistribution;
+    private final int id; //Identifier of generator
+    private final int number; //Number of trains to generate
 
-    /*  a - min in hours
-        b - max in hours
-        c - mean
-    */
-    public TrainsGenerator(AbstractRealDistribution timeDistribution, AbstractIntegerDistribution threadDistribution, int numberOfTrains){
+    static String dir;
+    File logFile;
+
+    static {
+        dir = "./Results/Generators statistics/";
+        File file = new File(dir);
+        file.mkdirs();
+
+        try{
+            FileUtils.cleanDirectory(file);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    public TrainsGenerator(AbstractRealDistribution timeDistribution, int threadId, int numberOfTrains){
         this.timeDistribution = timeDistribution;
-        this.threadDistribution = threadDistribution;
+        this.id = threadId;
         number = numberOfTrains;
     }
 
@@ -31,34 +38,33 @@ public class TrainsGenerator {
         Time lastTime = TimeConstants.START_SIMULATION;
         LinkedList<Train> list = new LinkedList<>();
 
-        for(int i = 0; i < number; i++){
-            Double interval = timeDistribution.sample() * Time.TICKS_PER_HOUR;
+        StringBuilder builder = new StringBuilder();
+
+        for(int i = 0; i < number; i++) {
+            Double interval = timeDistribution.sample()*60;
             lastTime = lastTime.add(interval.intValue());
-            list.add(new Train(threadDistribution.sample(), lastTime));
+            list.add(new Train(id, lastTime));
+            builder.append(Time.TicksToMinutes(interval.intValue())).append("\n");
         }
 
+        toFile(builder.toString());
         return list;
     }
 
-    /*public static void main(String[] args) throws IOException {
-        TrainsGenerator tg = new TrainsGenerator(0, 0.5, 1, 100);
+    private void toFile(String str){
+        prepareFile();
 
-        ArrayList<Train> trains = tg.generate();
-        System.out.println("hello");
-        for (Train t: trains) {
-            System.out.println(t + "\n");
-        }*/
-
-
-
-        /*FileWriter fileWriter = new FileWriter("1.txt", true);
-        PrintWriter pw = new PrintWriter(fileWriter);
-        pw.flush();
-
-        for (double d: ar) {
-            pw.println(d);
+        try (FileWriter writer = new FileWriter(logFile, true)){
+            writer.append(str);
+            writer.flush();
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        pw.close();
-    }*/
+    }
+
+
+    private void prepareFile(){
+        logFile = new File(dir + "TrainGenerator_" + id + ".csv");
+    }
 }
 

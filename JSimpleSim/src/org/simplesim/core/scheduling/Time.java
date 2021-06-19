@@ -129,4 +129,8 @@ public final class Time implements Comparable<Time> {
 		else return 0;
 	}
 
+	public static double TicksToMinutes(long ticks){
+		return Math.round(ticks*1.0/60 * 100) / 100.0;
+	}
+
 }
